@@ -1,6 +1,13 @@
+<style>
+    .bundle-button{
+        font-size: 20px;
+        margin-bottom: 30px;
+    }
+</style>
 <script src="http://code.jquery.com/jquery-1.11.0.min.js"></script>
 <script type="text/javascript" src="//ajax.googleapis.com/ajax/libs/jquery/2.0.0/jquery.min.js"></script>
 <nav>
+    <button class="bundle-button" data-products="[93, 86, 103]">Add Bundle to Cart</button>
     {{#if category.subcategories}}
     <div class="sidebarBlock">
         <h5 class="sidebarBlock-heading">{{category.name}}</h5>
@@ -46,47 +53,62 @@
     <!-- calls shop_by_price.html -->
     {{> components/category/shop-by-price shop_by_price=category.shop_by_price category_url=category.url}}
     {{/if}}
-    <button class="bundle-button" data-products="[93, 86, 77]">Add Bundle to Cart</button>
     <script>
         //an array of product id's
-        var basket = [93, 86, 77],
-
-            cartUrl = "/cart.php";
-
-            console.log(this.basket);
-
-            //bind this to our event    
-            addToCart = function () {
-                if (basket.length) {
-                    console.log(basket.length)
-                    for (var i = 0; i < basket.length; i++) {
-                        console.log("Works")
-                        $.ajax({
-                            type: 'GET',
-                            async: false,
-                            url: cartUrl + '?action=add&amp;product_id=' + basket[i] + '&amp;fastcart=1&amp;ajaxsubmit=1',
-                            success: function (data) {
-                                console.log("This is working!")
-                                //parse bigcommerce html response
-                                var obj = $.getJSON($(data).html());
-                                //success property = true if item was added successfully
-                                if (obj.success) {
-                                    console.log("SUCCESS")
-                                } else {
-                                    //do something to show items were not successfully added to cart
-                                }
+        var basket = [
+            {
+                product_id: 93,
+                'attribute[111]': 7,
+                'attribute[112]': 97
+            },
+            {
+                product_id: 86,
+                action: 'add'
+            },
+            {
+                product_id: 103,
+                action: 'add'
+            }
+        ];
+        cartUrl = "/cart.php";
+        // console.log(this.basket);
+        //bind this to our event    
+        addToCart = function () {
+            if (basket.length) {
+                console.log(basket.length)
+                for (var i = 0; i < basket.length; i++) {
+                    console.log(basket[i])
+                    $.ajax({
+                        type: 'POST',
+                        async: false,
+                        url: cartUrl,
+                        data: {
+                            action: 'add',
+                            product_id: basket[i],
+                            'attribute[111]': 7,
+                            'attribute[112]': 97
+                        },
+                        success: function (data) {
+                            console.log("This is working!")
+                            //parse bigcommerce html response
+                            var obj = $.getJSON($(data).html());
+                            //success property = true if item was added successfully
+                            if (obj.success) {
+                                console.log("SUCCESS")
+                            } else {
+                                //do something to show items were not successfully added to cart
                             }
-                        });
-                    }
+                        }
+                    });
                 }
-                window.location.replace(cartUrl);
-            };
-
+            }
+            window.location.replace(cartUrl);
+        };
         $('#add-to-cart-button').click(addToCart);
         //basket &amp; addToCart defined previously
         $('.bundle-button').click(function () {
             basket = $(this).data('products');
-            addToCart(console.log(this.basket));
+            addToCart();
         });
     </script>
 
